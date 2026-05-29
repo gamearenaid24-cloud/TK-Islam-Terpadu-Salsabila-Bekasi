@@ -5,7 +5,7 @@
 
 import React, { useState, useRef, useEffect } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
-import { Bot, X, Send, Sparkles, AlertCircle, HelpCircle } from 'lucide-react';
+import { Bot, X, Send, Sparkles, AlertCircle, HelpCircle, Minus, Plus } from 'lucide-react';
 
 interface Message {
   role: 'user' | 'model';
@@ -14,6 +14,9 @@ interface Message {
 
 export default function AIAssistant() {
   const [isOpen, setIsOpen] = useState(false);
+  const [isMinimized, setIsMinimized] = useState<boolean>(() => {
+    return localStorage.getItem('salsabila_ai_minimized') === 'true';
+  });
   const [messages, setMessages] = useState<Message[]>([
     {
       role: 'model',
@@ -93,26 +96,60 @@ export default function AIAssistant() {
   ];
 
   return (
-    <div className="fixed bottom-6 right-6 z-50">
+    <div className="fixed bottom-6 right-6 z-50 group/ai">
       <AnimatePresence>
         {!isOpen && (
-          <motion.button
-            initial={{ scale: 0.8, opacity: 0 }}
-            animate={{ scale: 1, opacity: 1 }}
-            exit={{ scale: 0.8, opacity: 0 }}
-            onClick={() => { setIsOpen(true); setAlertBadge(false); }}
-            className="flex items-center gap-2 px-4.5 py-4 bg-emerald-600 hover:bg-emerald-700 text-white font-extrabold rounded-full shadow-2xl transition-all duration-300 pointer-events-auto transform hover:scale-105 active:scale-95"
-          >
-            <Bot className="w-6 h-6 animate-pulse text-yellow-300" />
-            <span className="text-xs tracking-wide">Salsa AI</span>
-            
-            {alertBadge && (
-              <span className="absolute -top-1 -right-1 flex h-3.5 w-3.5">
-                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75"></span>
-                <span className="relative inline-flex rounded-full h-3.5 w-3.5 bg-red-500 text-[8px] text-white font-black items-center justify-center">1</span>
-              </span>
+          <div className="relative">
+            <motion.button
+              initial={{ scale: 0.8, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              exit={{ scale: 0.8, opacity: 0 }}
+              onClick={() => { setIsOpen(true); setAlertBadge(false); }}
+              className={`flex items-center justify-center bg-emerald-600 hover:bg-emerald-700 text-white font-extrabold shadow-2xl transition-all duration-300 pointer-events-auto transform hover:scale-105 active:scale-95 cursor-pointer ${
+                isMinimized 
+                  ? 'p-4 w-14 h-14 rounded-full' 
+                  : 'gap-2 px-4.5 py-4 rounded-full'
+              }`}
+            >
+              <Bot className="w-6 h-6 animate-pulse text-yellow-300" />
+              {!isMinimized && <span className="text-xs tracking-wide">Salsa AI</span>}
+              
+              {alertBadge && (
+                <span className="absolute -top-1 -right-1 flex h-3.5 w-3.5">
+                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75"></span>
+                  <span className="relative inline-flex rounded-full h-3.5 w-3.5 bg-red-500 text-[8px] text-white font-black items-center justify-center">1</span>
+                </span>
+              )}
+            </motion.button>
+
+            {isMinimized ? (
+              <button
+                onClick={(e) => {
+                  e.preventDefault();
+                  e.stopPropagation();
+                  setIsMinimized(false);
+                  localStorage.setItem('salsabila_ai_minimized', 'false');
+                }}
+                className="absolute -top-1.5 -right-1.5 w-5 h-5 bg-slate-900 text-white dark:bg-white dark:text-slate-950 rounded-full border border-white/20 dark:border-slate-800/20 shadow-lg flex items-center justify-center hover:scale-110 active:scale-90 transition-all cursor-pointer z-10"
+                title="Perluas Menu"
+              >
+                <Plus className="w-3 h-3" />
+              </button>
+            ) : (
+              <button
+                onClick={(e) => {
+                  e.preventDefault();
+                  e.stopPropagation();
+                  setIsMinimized(true);
+                  localStorage.setItem('salsabila_ai_minimized', 'true');
+                }}
+                className="absolute -top-1.5 -right-1.5 w-5 h-5 bg-slate-900/60 hover:bg-slate-900 text-white dark:bg-slate-850/60 dark:hover:bg-slate-850 dark:text-white rounded-full border border-white/10 dark:border-slate-800/10 shadow-lg flex items-center justify-center hover:scale-110 active:scale-90 transition-all opacity-100 sm:opacity-0 sm:group-hover/ai:opacity-100 cursor-pointer z-10"
+                title="Minimalisir"
+              >
+                <Minus className="w-3 h-3" />
+              </button>
             )}
-          </motion.button>
+          </div>
         )}
       </AnimatePresence>
 

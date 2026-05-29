@@ -11,9 +11,10 @@ import { PPDBRegistration, Gender } from '../types';
 interface PPDBFormProps {
   onRegister: (registration: PPDBRegistration) => void;
   allRegistrations: PPDBRegistration[];
+  isRegistrationOpen?: boolean;
 }
 
-export default function PPDBForm({ onRegister, allRegistrations }: PPDBFormProps) {
+export default function PPDBForm({ onRegister, allRegistrations, isRegistrationOpen = true }: PPDBFormProps) {
   const [activeTab, setActiveTab] = useState<'pendaftaran' | 'tracking'>('pendaftaran');
   const [childName, setChildName] = useState('');
   const [birthDate, setBirthDate] = useState('');
@@ -168,7 +169,26 @@ export default function PPDBForm({ onRegister, allRegistrations }: PPDBFormProps
         {/* TAB 1: Registration Form */}
         {activeTab === 'pendaftaran' && (
           <div className="space-y-6">
-            {!submittedCode ? (
+            {!isRegistrationOpen ? (
+              <div className="bg-white dark:bg-slate-800 p-10 rounded-3xl border border-slate-150 dark:border-slate-700/60 shadow-xs text-center space-y-5">
+                <div className="w-16 h-16 bg-rose-50 dark:bg-rose-950/40 text-rose-600 dark:text-rose-400 rounded-full flex items-center justify-center mx-auto border border-rose-100 dark:border-rose-900/40 animate-pulse">
+                  <CircleAlert className="w-8 h-8" />
+                </div>
+                <div className="space-y-2">
+                  <h3 className="font-display font-black text-xl text-slate-900 dark:text-white">
+                    Pendaftaran PPDB Ditutup Sementara
+                  </h3>
+                  <p className="text-sm text-slate-500 dark:text-slate-400 max-w-lg mx-auto leading-relaxed">
+                    Mohon maaf, saat ini pendaftaran online Calon Siswa Baru TKIT Salsabila Bekasi sedang ditutup/dinonaktifkan oleh bagian administrasi sekolah karena kuota penuh atau pemeliharaan sistem berkas pendaftaran gelombang berjalan.
+                  </p>
+                </div>
+                <div className="p-4 bg-slate-50 dark:bg-slate-900/60 rounded-2xl border border-slate-100 dark:border-slate-800 max-w-md mx-auto text-xs text-left space-y-1 text-slate-600 dark:text-slate-350">
+                  <p className="font-extrabold text-emerald-600 dark:text-emerald-400">💡 Informasi Penting Bagi Ayah & Bunda:</p>
+                  <p className="font-medium">&bull; Silakan cek status pendaftaran yang telah dikirim via tab <strong>Lacak Status PPDB Ananda</strong> di atas.</p>
+                  <p className="font-medium">&bull; Hubungi Tim Admin / Hubungan Masyarakat sekolah via WhatsApp di tombol pojok kiri bawah jikalau ada pertanyaan darurat terkait jadwal seleksi susulan.</p>
+                </div>
+              </div>
+            ) : !submittedCode ? (
               <form onSubmit={handleSubmit} className="bg-white dark:bg-slate-800 p-8 rounded-3xl border border-slate-100 dark:border-slate-700/60 shadow-xs space-y-6">
                 <div className="flex items-center gap-2 border-b border-slate-100 dark:border-slate-700 pb-3">
                   <ClipboardList className="text-emerald-600 w-5 h-5" />
@@ -460,21 +480,59 @@ export default function PPDBForm({ onRegister, allRegistrations }: PPDBFormProps
                       <h4 className="font-mono text-xl font-black text-emerald-800 dark:text-yellow-300">{trackedRecord.id}</h4>
                     </div>
                     {/* Status badges */}
-                    <div>
-                      <span className="block text-[10px] text-slate-400 text-right uppercase tracking-widest font-mono">Status PPDB</span>
-                      <span className={`inline-block mt-1 px-4 py-1 rounded-full text-xs font-bold ${
-                        trackedRecord.status === 'Menunggu Verifikasi'
-                          ? 'bg-amber-100 text-amber-700'
-                          : trackedRecord.status === 'Dokumen Terverifikasi'
-                          ? 'bg-blue-100 text-blue-700'
-                          : trackedRecord.status === 'Jadwal Wawancara'
-                          ? 'bg-purple-100 text-purple-700'
-                          : trackedRecord.status === 'Diterima'
-                          ? 'bg-emerald-100 text-emerald-700'
-                          : 'bg-red-100 text-red-700'
-                      }`}>
+                    <div className="text-right">
+                      <span className="block text-[10px] text-slate-400 text-right uppercase tracking-widest font-mono mb-1">Status PPDB</span>
+                      <motion.span
+                        key={trackedRecord.status}
+                        initial={{ scale: 0.9, opacity: 0 }}
+                        animate={
+                          ['Jadwal Wawancara', 'Diterima'].includes(trackedRecord.status)
+                            ? {
+                                scale: [1, 1.05, 1],
+                                opacity: 1,
+                                boxShadow: [
+                                  "0 0 0px rgba(0,0,0,0)",
+                                  trackedRecord.status === 'Diterima'
+                                    ? "0 0 10px rgba(16, 185, 129, 0.5)"
+                                    : "0 0 10px rgba(168, 85, 247, 0.5)",
+                                  "0 0 0px rgba(0,0,0,0)",
+                                ],
+                              }
+                            : { scale: 1, opacity: 1 }
+                        }
+                        transition={
+                          ['Jadwal Wawancara', 'Diterima'].includes(trackedRecord.status)
+                            ? {
+                                scale: { duration: 2.2, repeat: Infinity, ease: "easeInOut" },
+                                boxShadow: { duration: 2.2, repeat: Infinity, ease: "easeInOut" },
+                                opacity: { duration: 0.3 }
+                              }
+                            : { duration: 0.3 }
+                        }
+                        className={`inline-flex items-center gap-1.5 px-3.5 py-1 rounded-full text-xs font-black uppercase tracking-wider ${
+                          trackedRecord.status === 'Menunggu Verifikasi'
+                            ? 'bg-amber-100 text-amber-700 dark:bg-amber-950/40 dark:text-amber-400'
+                            : trackedRecord.status === 'Dokumen Terverifikasi'
+                            ? 'bg-blue-100 text-blue-700 dark:bg-blue-950/40 dark:text-blue-400'
+                            : trackedRecord.status === 'Jadwal Wawancara'
+                            ? 'bg-purple-100 text-purple-700 dark:bg-purple-950/40 dark:text-purple-400'
+                            : trackedRecord.status === 'Diterima'
+                            ? 'bg-emerald-100 text-emerald-850 dark:bg-emerald-950/50 dark:text-emerald-300'
+                            : 'bg-red-100 text-red-700 dark:bg-red-950/40 dark:text-red-400'
+                        }`}
+                      >
+                        {['Jadwal Wawancara', 'Diterima'].includes(trackedRecord.status) && (
+                          <span className="relative flex h-2 w-2">
+                            <span className={`animate-ping absolute inline-flex h-full w-full rounded-full opacity-75 ${
+                              trackedRecord.status === 'Diterima' ? 'bg-emerald-500' : 'bg-purple-500'
+                            }`}></span>
+                            <span className={`relative inline-flex rounded-full h-2 w-2 ${
+                              trackedRecord.status === 'Diterima' ? 'bg-emerald-600' : 'bg-purple-600'
+                            }`}></span>
+                          </span>
+                        )}
                         {trackedRecord.status}
-                      </span>
+                      </motion.span>
                     </div>
                   </div>
 

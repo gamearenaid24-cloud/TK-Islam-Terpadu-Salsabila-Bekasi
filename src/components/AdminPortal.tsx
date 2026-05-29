@@ -22,6 +22,8 @@ interface AdminPortalProps {
   onAddTeacher: (teacher: Teacher) => void;
   students: Student[];
   onAddStudent: (student: Student) => void;
+  isRegistrationOpen: boolean;
+  onToggleRegistration: () => void;
 }
 
 export default function AdminPortal({
@@ -35,6 +37,8 @@ export default function AdminPortal({
   onAddTeacher,
   students,
   onAddStudent,
+  isRegistrationOpen,
+  onToggleRegistration,
 }: AdminPortalProps) {
   const [activeRole, setActiveRole] = useState<Role>('Super Admin');
   const [activeSidebarTab, setActiveSidebarTab] = useState<'dashboard' | 'ppdb' | 'berita' | 'guru_siswa' | 'audit_log' | 'ai_assistant'>('dashboard');
@@ -445,6 +449,38 @@ export default function AdminPortal({
         {/* TAB 2: MANAGE PPDB APPLICATIONS */}
         {activeSidebarTab === 'ppdb' && (
           <div className="space-y-6">
+            {/* PPDB Program Activation/Deactivation Dashboard Panel */}
+            <div className="p-6 bg-slate-950 rounded-3xl border border-slate-800 flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+              <div className="space-y-1">
+                <div className="flex items-center gap-2">
+                  <span className={`w-2.5 h-2.5 rounded-full ${isRegistrationOpen ? 'bg-emerald-500 animate-pulse' : 'bg-rose-500'}`} />
+                  <h4 className="font-display font-black text-sm text-white">RECRUITMENT WINDOW: STATUS PPDB</h4>
+                </div>
+                <p className="text-xs text-slate-400 leading-relaxed max-w-xl">
+                  {isRegistrationOpen 
+                    ? 'Penerimaan online sedang AKTIF / TERBUKA. Orang tua dapat mengakses, mengisi berkas, dan mendaftarkan putra-putrinya secara normal di portal utama.' 
+                    : 'Penerimaan online sedang DINONAKTIFKAN / DITUTUP. Seluruh formulir pendaftaran dinonaktifkan sementara dan menampilkan pemberitahuan informatif bagi pendaftar.'}
+                </p>
+              </div>
+              <button
+                onClick={() => {
+                  onToggleRegistration();
+                  addAuditLog(`Memodifikasi status pendaftaran PPDB Online menjadi: ${!isRegistrationOpen ? 'AKTIF / TERBUKA' : 'TERTUTUP / DINONAKTIFKAN'}`);
+                }}
+                className={`px-5 py-2.5 rounded-xl text-xs font-black uppercase tracking-wider transition-all duration-300 transform active:scale-95 cursor-pointer flex items-center gap-1.5 shrink-0 ${
+                  isRegistrationOpen 
+                    ? 'bg-rose-950/60 hover:bg-rose-900 border border-rose-950 text-rose-350 hover:text-white' 
+                    : 'bg-emerald-950/60 hover:bg-emerald-900 border border-emerald-950 text-emerald-350 hover:text-white'
+                }`}
+              >
+                {isRegistrationOpen ? (
+                  <>🛑 Tutup Pendaftaran PPDB</>
+                ) : (
+                  <>🚀 Aktifkan Pendaftaran PPDB</>
+                )}
+              </button>
+            </div>
+
             <div className="p-6 bg-slate-950 rounded-3xl border border-slate-800 space-y-4">
               <div className="flex justify-between items-center flex-wrap gap-4">
                 <h4 className="font-display font-black text-sm text-white">PROSES PENERIMAAN PPDB ONLINE</h4>

@@ -17,7 +17,6 @@ import AdminLogin from './components/AdminLogin';
 import ContactSection from './components/ContactSection';
 import AIAssistant from './components/AIAssistant';
 import Testimonials from './components/Testimonials';
-import WhatsAppButton from './components/WhatsAppButton';
 
 import { PPDBRegistration, NewsArticle, Teacher, Student, GalleryItem, Testimonial } from './types';
 
@@ -237,6 +236,10 @@ export default function App() {
     return saved === 'true';
   });
   const [isLoginModalOpen, setIsLoginModalOpen] = useState<boolean>(false);
+  const [isRegistrationOpen, setIsRegistrationOpen] = useState<boolean>(() => {
+    const saved = localStorage.getItem('salsabila_ppdb_open');
+    return saved !== 'false';
+  });
 
   // Synchronized States using LocalStorage Fallback so it is dynamic
   const [registrations, setRegistrations] = useState<PPDBRegistration[]>(() => {
@@ -383,6 +386,12 @@ export default function App() {
             onAddTeacher={handleAddTeacher}
             students={students}
             onAddStudent={handleAddStudent}
+            isRegistrationOpen={isRegistrationOpen}
+            onToggleRegistration={() => {
+              const nextVal = !isRegistrationOpen;
+              setIsRegistrationOpen(nextVal);
+              localStorage.setItem('salsabila_ppdb_open', nextVal ? 'true' : 'false');
+            }}
           />
         ) : (
           /* Public Web Pages */
@@ -415,6 +424,7 @@ export default function App() {
               <PPDBForm
                 onRegister={handleAddRegistration}
                 allRegistrations={registrations}
+                isRegistrationOpen={isRegistrationOpen}
               />
             )}
 
@@ -432,9 +442,6 @@ export default function App() {
 
       {/* Universal Floating intelligent Salsa AI assistant */}
       <AIAssistant />
-
-      {/* Persistent WhatsApp Chat button with dynamic pre-filled content */}
-      <WhatsAppButton currentView={currentView} />
 
       {/* Admin Login Modal with registered email validation */}
       {isLoginModalOpen && (
