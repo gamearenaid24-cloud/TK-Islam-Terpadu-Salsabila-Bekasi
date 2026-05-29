@@ -1,0 +1,75 @@
+@import "tailwindcss";
+
+@theme {
+  --color-primary: #059669; /* Emerald Green */
+  --color-primary-dark: #047857;
+  --color-primary-light: #34d399;
+  --color-secondary: #facc15; /* Kuning Ceria */
+  --color-secondary-dark: #eab308;
+  --font-sans: 'Inter', system-ui, -apple-system, sans-serif;
+  --font-display: 'Poppins', Georgia, serif;
+  --font-mono: 'JetBrains Mono', monospace;
+}
+
+/* Base style resets */
+html {
+  scroll-behavior: smooth;
+}
+
+/* Islamic Geometric Pattern Backdrop & Ambient Effects */
+.islamic-pattern {
+  background-color: #fafdfb;
+  background-image: radial-gradient(rgba(5, 150, 105, 0.03) 2px, transparent 2px),
+                    radial-gradient(rgba(5, 150, 105, 0.03) 2px, #fafdfb 2px);
+  background-size: 32px 32px;
+  background-position: 0 0, 16px 16px;
+}
+
+.dark .islamic-pattern {
+  background-color: #0b1511;
+  background-image: radial-gradient(rgba(52, 211, 153, 0.03) 2px, transparent 2px),
+                    radial-gradient(rgba(52, 211, 153, 0.03) 2px, #0b1511 2px);
+  background-size: 32px 32px;
+  background-position: 0 0, 16px 16px;
+}
+
+/* Premium Custom Scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: rgba(5, 150, 105, 0.2);
+  border-radius: 9999px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(5, 150, 105, 0.4);
+}
+
+/* Shimmer/Skeleton Effect */
+@keyframes shimmer {
+  0% {
+    background-position: -200% 0;
+  }
+  100% {
+    background-position: 200% 0;
+  }
+}
+
+.shimmer {
+  background: linear-gradient(90deg, #f3f4f6 25%, #e5e7eb 50%, #f3f4f6 75%);
+  background-size: 200% 100%;
+  animation: shimmer 1.5s infinite linear;
+}
+
+.dark .shimmer {
+  background: linear-gradient(90deg, #1f2937 25%, #374151 50%, #1f2937 75%);
+  background-size: 200% 100%;
+}
+

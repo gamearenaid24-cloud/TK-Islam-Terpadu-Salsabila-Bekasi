@@ -1,0 +1,6 @@
+{
+  "name": "TKIT Salsabila Bekasi",
+  "description": "Website Resmi dan Portal PPDB Online TK Islam Terpadu Salsabila Bekasi - Membentuk Generasi Qurani, Cerdas, Mandiri, dan Berakhlak Mulia.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
