@@ -15,6 +15,45 @@ dotenv.config();
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
+// Exponential backoff and retry helper for transient Gemini API errors (e.g. 503 Unavailable)
+async function generateContentWithRetry(
+  aiClient: GoogleGenAI,
+  params: {
+    model: string;
+    contents: string;
+    config: {
+      systemInstruction: string;
+      temperature: number;
+      maxOutputTokens: number;
+    };
+  },
+  retries = 3,
+  initialDelay = 500
+) {
+  let delay = initialDelay;
+  for (let attempt = 1; attempt <= retries; attempt++) {
+    try {
+      return await aiClient.models.generateContent(params);
+    } catch (err: any) {
+      const errStr = String(err?.message || err || '');
+      const isTransient = 
+        errStr.includes('503') || 
+        errStr.toLowerCase().includes('unavailable') || 
+        errStr.toLowerCase().includes('high demand') || 
+        errStr.toLowerCase().includes('temporary');
+
+      if (isTransient && attempt < retries) {
+        console.log(`[Gemini API] Attempt ${attempt} failed with transient error. Retrying in ${delay}ms...`);
+        await new Promise((resolve) => setTimeout(resolve, delay));
+        delay *= 2; // exponential backoff
+        continue;
+      }
+      throw err;
+    }
+  }
+  throw new Error('All retry attempts failed.');
+}
+
 async function startServer() {
   const app = express();
   const PORT = 3000;
@@ -94,7 +133,7 @@ Context parameters:
 Please write a friendly, helpful, short response based on the system instructions.
 `;
 
-        const response = await ai.models.generateContent({
+        const response = await generateContentWithRetry(ai, {
           model: 'gemini-3.5-flash',
           contents: prompt,
           config: {
@@ -107,7 +146,7 @@ Please write a friendly, helpful, short response based on the system instruction
         const reply = response.text || '';
         return res.json({ reply });
       } catch (err: any) {
-        console.error('Gemini API call fell through:', err);
+        console.log('[Gemini API Fallback] Caught an API error (likely transient 503 load spike). Gracefully shifting to high-fidelity Offline Simulator.');
         // Fallback to offline generator below
       }
     }

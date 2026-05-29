@@ -10,6 +10,7 @@ interface HeaderProps {
   currentView: string;
   onViewChange: (view: string) => void;
   isAdminMode: boolean;
+  isAdminLogged?: boolean;
   onToggleAdminMode: () => void;
   isDarkMode: boolean;
   onToggleDarkMode: () => void;
@@ -19,6 +20,7 @@ export default function Header({
   currentView,
   onViewChange,
   isAdminMode,
+  isAdminLogged = false,
   onToggleAdminMode,
   isDarkMode,
   onToggleDarkMode,
@@ -41,28 +43,6 @@ export default function Header({
 
   return (
     <div className="sticky top-0 z-50 flex flex-col transition-all">
-      {/* Top Utility Bar */}
-      <header className="bg-emerald-800 dark:bg-[#071d15] text-white px-4 sm:px-8 py-1.5 flex flex-col sm:flex-row justify-between items-center text-[11px] sm:text-xs font-semibold tracking-wide border-b border-emerald-900/50">
-        <div className="flex flex-wrap justify-center sm:justify-start gap-4 sm:gap-6 text-emerald-100 font-medium">
-          <span className="flex items-center gap-1">🌐 NPSN: 69825989</span>
-          <span className="flex items-center gap-1">📍 Jl. Raya Pondok Ungu Permai Sektor 5, Bekasi</span>
-          <span className="hidden md:inline-flex items-center gap-1">☎️ (021) 88983124</span>
-        </div>
-        <div className="flex gap-4 items-center mt-1 sm:mt-0">
-          <span className="text-emerald-100 hidden sm:inline">🕒 Senin – Jumat 07.30 – 13.00 WIB</span>
-          <button
-            onClick={onToggleAdminMode}
-            className={`px-2 py-0.5 rounded text-[10px] uppercase font-black tracking-wider transition-all duration-300 transform active:scale-95 ${
-              isAdminMode 
-                ? 'bg-rose-500 hover:bg-rose-600 text-white shadow-xs' 
-                : 'bg-yellow-400 hover:bg-yellow-300 text-emerald-950 shadow-xs'
-            }`}
-          >
-            {isAdminMode ? 'Mode Siswa' : 'Admin Portal'}
-          </button>
-        </div>
-      </header>
-
       {/* Main Navigation */}
       <nav className="bg-white/95 dark:bg-slate-900/95 backdrop-blur-md border-b border-slate-200 dark:border-slate-800/80 transition-colors shadow-xs">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -121,9 +101,20 @@ export default function Header({
 
               <button
                 onClick={() => handleNavClick('kontak')}
-                className="ml-2 bg-emerald-600 hover:bg-emerald-700 text-white px-4 py-1.5 rounded-full text-xs font-bold shadow-xs transition-all"
+                className="ml-2 bg-emerald-600 hover:bg-emerald-700 text-white px-4 py-1.5 rounded-full text-xs font-bold shadow-xs transition-all cursor-pointer"
               >
                 Hubungi Kami
+              </button>
+
+              <button
+                onClick={onToggleAdminMode}
+                className={`ml-1.5 px-3 py-1.5 rounded-full text-[10px] uppercase font-black tracking-wider transition-all duration-300 transform active:scale-95 cursor-pointer ${
+                  isAdminLogged 
+                    ? 'bg-rose-500 hover:bg-rose-600 text-white' 
+                    : 'bg-yellow-400 hover:bg-yellow-300 text-emerald-950'
+                }`}
+              >
+                {isAdminLogged ? (isAdminMode ? 'Mode Siswa' : 'Logout Admin') : 'Admin Portal'}
               </button>
             </div>
 

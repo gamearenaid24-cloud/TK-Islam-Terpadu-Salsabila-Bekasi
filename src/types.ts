@@ -77,3 +77,15 @@ export interface VisitorStat {
   date: string;
   count: number;
 }
+
+export interface Testimonial {
+  id: string;
+  name: string;
+  relation: string;
+  childName: string;
+  cohort: string;
+  text: string;
+  rating: number;
+  avatar: string;
+  tag: 'Wali Murid' | 'Alumni' | 'Tokoh Wali';
+}

@@ -13,12 +13,13 @@ import GalleryView from './components/GalleryView';
 import NewsSection from './components/NewsSection';
 import PPDBForm from './components/PPDBForm';
 import AdminPortal from './components/AdminPortal';
+import AdminLogin from './components/AdminLogin';
 import ContactSection from './components/ContactSection';
 import AIAssistant from './components/AIAssistant';
 import Testimonials from './components/Testimonials';
 import WhatsAppButton from './components/WhatsAppButton';
 
-import { PPDBRegistration, NewsArticle, Teacher, Student, GalleryItem } from './types';
+import { PPDBRegistration, NewsArticle, Teacher, Student, GalleryItem, Testimonial } from './types';
 
 // Seed Initial News Articles
 const INITIAL_ARTICLES: NewsArticle[] = [
@@ -180,10 +181,62 @@ const INITIAL_GALLERY: GalleryItem[] = [
   { id: 'g-7', title: 'Uji Kerapihan Membaca Metode Ummi', category: 'Kegiatan Keagamaan', imageUrl: '', date: '2025-11-15' },
 ];
 
+const INITIAL_TESTIMONIALS: Testimonial[] = [
+  {
+    id: 'test-1',
+    name: 'Bunda Safira',
+    relation: 'Ibu dari Kenzi Ibrahim',
+    childName: 'Kenzi Ibrahim',
+    cohort: 'Alumni Sentra Balok 2025',
+    text: 'MasyaAllah, berkat bimbingan intensif Metode Ummi di TKIT Salsabila, Kenzi sudah hafal sebagian Juz 30 dan sangat lancar melafazkan doa harian sebelum menginjak usia SD. Karakter kemandiriannya sangat terlatih melalui permainan konstruksi Sentra Balok!',
+    rating: 5,
+    avatar: '👩‍💼',
+    tag: 'Alumni',
+  },
+  {
+    id: 'test-2',
+    name: 'Ayah Hanif',
+    relation: 'Ayah dari Naura Salsabila',
+    childName: 'Naura Salsabila',
+    cohort: 'Siswa Aktif Sentra Imtaq',
+    text: 'Metode Sentra (BCCT) yang diterapkan benar-benar membuat anak saya gembira setiap pagi dan selalu bersemangat untuk sekolah. Kurikulumnya sangat islami, praktik wudhu tertib dan shalat dhuha dibiasakan secara ramah anak tanpa paksaan.',
+    rating: 5,
+    avatar: '👨‍💼',
+    tag: 'Wali Murid',
+  },
+  {
+    id: 'test-3',
+    name: 'Bunda Zulfa',
+    relation: 'Ibu dari Rayyan Al-Fatih',
+    childName: 'Rayyan Al-Fatih',
+    cohort: 'Alumni Sentra Persiapan 2024',
+    text: 'Ustadah di TKIT Salsabila luar biasa sabar dan komunikatif. Laporan portofolio perkembangan kognitif dan pembentukan akhlak anak disampaikan teratur dan personal. Suasana belajarnya hangat, terasa seperti keluarga kedua bagi ananda.',
+    rating: 5,
+    avatar: '👩',
+    tag: 'Wali Murid',
+  },
+  {
+    id: 'test-4',
+    name: 'Ayah Irwan Wijaya',
+    relation: 'Ayah dari Fatimah Azzahra',
+    childName: 'Fatimah Azzahra',
+    cohort: 'Siswa Aktif Sentra Seni',
+    text: 'Pilihan terbaik untuk pondasi akhlak anak usia dini di Bekasi Barat dan Babelan. Integrasi iman, ilmu, dan kreativitas tersaji sempurna. Anak jadi lebih sopan dalam bertutur kata dan gemar membantu orang tua di rumah.',
+    rating: 5,
+    avatar: '👨',
+    tag: 'Wali Murid',
+  }
+];
+
 export default function App() {
   const [currentView, setCurrentView] = useState<string>('beranda');
   const [isDarkMode, setIsDarkMode] = useState<boolean>(false);
   const [isAdminMode, setIsAdminMode] = useState<boolean>(false);
+  const [isAdminLogged, setIsAdminLogged] = useState<boolean>(() => {
+    const saved = localStorage.getItem('salsabila_admin_logged');
+    return saved === 'true';
+  });
+  const [isLoginModalOpen, setIsLoginModalOpen] = useState<boolean>(false);
 
   // Synchronized States using LocalStorage Fallback so it is dynamic
   const [registrations, setRegistrations] = useState<PPDBRegistration[]>(() => {
@@ -206,6 +259,16 @@ export default function App() {
     return saved ? JSON.parse(saved) : INITIAL_STUDENTS;
   });
 
+  const [galleryItems, setGalleryItems] = useState<GalleryItem[]>(() => {
+    const saved = localStorage.getItem('salsabila_gallery');
+    return saved ? JSON.parse(saved) : INITIAL_GALLERY;
+  });
+
+  const [testimonials, setTestimonials] = useState<Testimonial[]>(() => {
+    const saved = localStorage.getItem('salsabila_testimonials');
+    return saved ? JSON.parse(saved) : INITIAL_TESTIMONIALS;
+  });
+
   // Sync to localStorage
   useEffect(() => {
     localStorage.setItem('salsabila_ppdb', JSON.stringify(registrations));
@@ -222,6 +285,14 @@ export default function App() {
   useEffect(() => {
     localStorage.setItem('salsabila_students', JSON.stringify(students));
   }, [students]);
+
+  useEffect(() => {
+    localStorage.setItem('salsabila_gallery', JSON.stringify(galleryItems));
+  }, [galleryItems]);
+
+  useEffect(() => {
+    localStorage.setItem('salsabila_testimonials', JSON.stringify(testimonials));
+  }, [testimonials]);
 
   // Dark Mode side effects
   useEffect(() => {
@@ -258,6 +329,14 @@ export default function App() {
     setStudents([newStu, ...students]);
   };
 
+  const handleAddGalleryItem = (newGallery: GalleryItem) => {
+    setGalleryItems([newGallery, ...galleryItems]);
+  };
+
+  const handleAddTestimonial = (newTest: Testimonial) => {
+    setTestimonials([newTest, ...testimonials]);
+  };
+
   return (
     <div className="min-h-screen flex flex-col bg-slate-50 dark:bg-[#0b1329] text-slate-800 dark:text-slate-100 transition-colors duration-300">
       
@@ -269,8 +348,19 @@ export default function App() {
           setCurrentView(view);
         }}
         isAdminMode={isAdminMode}
+        isAdminLogged={isAdminLogged}
         onToggleAdminMode={() => {
-          setIsAdminMode(!isAdminMode);
+          if (isAdminLogged) {
+            if (isAdminMode) {
+              setIsAdminMode(false);
+            } else {
+              setIsAdminMode(false);
+              setIsAdminLogged(false);
+              localStorage.setItem('salsabila_admin_logged', 'false');
+            }
+          } else {
+            setIsLoginModalOpen(true);
+          }
         }}
         isDarkMode={isDarkMode}
         onToggleDarkMode={() => {
@@ -301,7 +391,7 @@ export default function App() {
               <div>
                 {/* Hero / statistics promo */}
                 <Hero onViewChange={setCurrentView} articles={articles} />
-                <Testimonials />
+                <Testimonials testimonials={testimonials} onAddTestimonial={handleAddTestimonial} />
               </div>
             )}
 
@@ -314,7 +404,7 @@ export default function App() {
             )}
 
             {currentView === 'galeri' && (
-              <GalleryView items={INITIAL_GALLERY} />
+              <GalleryView items={galleryItems} onAddGalleryItem={handleAddGalleryItem} isAdmin={isAdminLogged} />
             )}
 
             {currentView === 'berita' && (
@@ -345,6 +435,19 @@ export default function App() {
 
       {/* Persistent WhatsApp Chat button with dynamic pre-filled content */}
       <WhatsAppButton currentView={currentView} />
+
+      {/* Admin Login Modal with registered email validation */}
+      {isLoginModalOpen && (
+        <AdminLogin
+          onLoginSuccess={(email) => {
+            setIsAdminLogged(true);
+            setIsAdminMode(true);
+            localStorage.setItem('salsabila_admin_logged', 'true');
+            setIsLoginModalOpen(false);
+          }}
+          onClose={() => setIsLoginModalOpen(false)}
+        />
+      )}
 
     </div>
   );
